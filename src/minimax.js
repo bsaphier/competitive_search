@@ -113,29 +113,39 @@ var heuristic = function(state, maximizingPlayer){
 	//This is how you can retrieve the minimizing player.
     var minimizingPlayer = (maximizingPlayer == 'x') ? 'o' : 'x';
 
-	//An example.
-    var linesOfLengthTwoForX = state.numLines(2, maximizingPlayer);
-		var linesOfLengthThreeForX = state.numLines(3, maximizingPlayer);
-		var linesOfLengthFourForX = state.numLines(4, maximizingPlayer);
+		var evalForPlayer = function(player){
+			return [2, 3, 4].reduce( (total, lineLength) => {
+				return total +
+					state.numLines(lineLength, player) *
+					Math.pow(200, lineLength);
+			}, 0);
+		};
 
-		var linesOfLengthTwoForO = state.numLines(2, minimizingPlayer);
-		var linesOfLengthThreeForO = state.numLines(3, minimizingPlayer);
-		var linesOfLengthFourForO = state.numLines(4, minimizingPlayer);
+		return evalForPlayer(maximizingPlayer) - evalForPlayer(minimizingPlayer);
 
-
-		let stateVal = function() {
-			if (linesOfLengthFourForX > 0) {
-				return 1000000;
-			}
-			if (linesOfLengthFourForO > 0) {
-				return -1000000;
-			}
-			return (linesOfLengthTwoForX + linesOfLengthThreeForX * 100) -
-			(linesOfLengthTwoForO + linesOfLengthThreeForO * 100);
-		}
-    //Your code here.  Don't return random, obviously.
-	return stateVal();
-}
+	// //An example.
+  //   var linesOfLengthTwoForX = state.numLines(2, maximizingPlayer);
+	// 	var linesOfLengthThreeForX = state.numLines(3, maximizingPlayer);
+	// 	var linesOfLengthFourForX = state.numLines(4, maximizingPlayer);
+	//
+	// 	var linesOfLengthTwoForO = state.numLines(2, minimizingPlayer);
+	// 	var linesOfLengthThreeForO = state.numLines(3, minimizingPlayer);
+	// 	var linesOfLengthFourForO = state.numLines(4, minimizingPlayer);
+	//
+	//
+	// 	let stateVal = function() {
+	// 		if (linesOfLengthFourForX === 1) {
+	// 			return 100;
+	// 		}
+	// 		if (linesOfLengthFourForO === 1) {
+	// 			return -100;
+	// 		}
+	// 		return (linesOfLengthTwoForX + linesOfLengthThreeForX * 10) -
+	// 		(linesOfLengthTwoForO + linesOfLengthThreeForO * 10);
+	// 	}
+  //   //Your code here.  Don't return random, obviously.
+	// return stateVal();
+};
 
 
 
@@ -161,22 +171,32 @@ to see if you are maximizing or minimizing.
 var minimax = function(state, depth, maximizingPlayer){
 	var minimizingPlayer = (state.maximizingPlayer == 'x') ? 'o' : 'x';
 	var possibleStates = state.nextStates();
-
 	var currentPlayer = state.nextMovePlayer;
 
-	if (depth === 0 || possibleStates.length === 0) return heuristic(state, currentPlayer);
-	//Your code here.
-	let stateValues = possibleStates.map(oneState => {
-		return heuristic(oneState, currentPlayer);
-	});
-	let bestVal = Math.max(...stateValues);
-	console.log(bestVal);
-	let bestState = possibleStates[stateValues.indexOf(bestVal)]
-	// console.log(bestState);
-	let val = minimax(bestState, depth - 1, maximizingPlayer)
-	// console.log(val);
-	return val;
-}
+	if (depth === 0 || possibleStates.length === 0) {
+		return heuristic(state, maximizingPlayer);
+	} else {
+		var possibleStateValues = possibleStates.map(nextState => {
+			return minimax(nextState, depth - 1, maximizingPlayer);
+		});
+
+		return (currentPlayer == maximizingPlayer) ?
+			Math.max.apply(null, possibleStateValues) :
+			Math.min.apply(null, possibleStateValues);
+
+	}
+	// //Your code here.
+	// let stateValues = possibleStates.map(oneState => {
+	// 	return heuristic(oneState, currentPlayer);
+	// });
+	// let bestVal = Math.max(...stateValues);
+	//
+	// let bestState = possibleStates[stateValues.indexOf(bestVal)];
+	//
+	// let val = minimax(bestState, depth - 1, maximizingPlayer);
+	//
+	// return val;
+};
 
 
 
@@ -200,10 +220,10 @@ var minimaxAlphaBetaWrapper = function(state, depth, maximizingPlayer){
     does; this is why it is a very high value to start with.
 	*/
 	var minimaxAB = function(state, depth, alpha, beta){
-	}
+	};
 
-	return minimaxAB(state, depth, -100000,100000)
-}
+	return minimaxAB(state, depth, -100000, 100000)
+};
 
 //ecxport default {makeMove, minimax, heuristic};
 module.exports = {makeMove, minimax, heuristic};
